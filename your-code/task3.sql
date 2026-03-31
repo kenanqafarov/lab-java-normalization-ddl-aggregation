@@ -1,54 +1,60 @@
--- 1. Total number of flights
-SELECT COUNT(DISTINCT flight_number) FROM flights;
+-- I use the airline database here --
+USE airlinedb;
 
+-- I get the total number of distinct flights here --
+SELECT COUNT(DISTINCT flight_number) AS total_flights
+FROM flights;
 
--- 2. Average flight distance
-SELECT AVG(flight_mileage) FROM flights;
+-- I get the average flight distance here --
+SELECT AVG(mileage) AS avg_flight_distance
+FROM flights;
 
+-- I get the average number of seats per aircraft here --
+SELECT AVG(total_seats) AS avg_seats_per_aircraft
+FROM aircrafts;
 
--- 3. Average number of seats per aircraft
-SELECT AVG(total_seats) FROM aircrafts;
-
-
--- 4. Average miles flown by customers, grouped by status
-SELECT status, AVG(total_mileage)
+-- I get the average mileage of customers grouped by status here --
+SELECT
+    status,
+    AVG(total_mileage) AS avg_mileage
 FROM customers
 GROUP BY status;
 
-
--- 5. Max miles flown by customers, grouped by status
-SELECT status, MAX(total_mileage)
+-- I get the max mileage of customers grouped by status here --
+SELECT
+    status,
+    MAX(total_mileage) AS max_mileage
 FROM customers
 GROUP BY status;
 
-
--- 6. Number of aircrafts with "Boeing" in their name
-SELECT COUNT(*)
+-- I count the aircraft that have Boeing in their name here --
+SELECT COUNT(*) AS boeing_aircraft_count
 FROM aircrafts
-WHERE model LIKE '%Boeing%';
+WHERE name LIKE '%Boeing%';
 
-
--- 7. Flights with distance between 300 and 2000 miles
+-- I get all flights with mileage between 300 and 2000 here --
 SELECT *
 FROM flights
-WHERE flight_mileage BETWEEN 300 AND 2000;
+WHERE mileage BETWEEN 300 AND 2000;
 
-
--- 8. Average flight distance booked, grouped by customer status
-SELECT c.status, AVG(f.flight_mileage)
+-- I get the average booked flight distance grouped by customer status here --
+SELECT
+    c.status,
+    AVG(f.mileage) AS avg_booked_distance
 FROM bookings b
-         JOIN customers c ON b.customer_id = c.customer_id
-         JOIN flights f ON b.flight_id = f.flight_id
+         JOIN customers c ON b.customer_id   = c.id
+         JOIN flights   f ON b.flight_number = f.flight_number
 GROUP BY c.status;
 
-
--- 9. Most booked aircraft among Gold status members
-SELECT a.model, COUNT(*) AS total_bookings
+-- I get the most booked aircraft among Gold customers here --
+SELECT
+    a.name       AS aircraft,
+    COUNT(*)     AS total_bookings
 FROM bookings b
-         JOIN customers c ON b.customer_id = c.customer_id
-         JOIN flights f ON b.flight_id = f.flight_id
-         JOIN aircrafts a ON f.aircraft_id = a.aircraft_id
+         JOIN customers c ON b.customer_id   = c.id
+         JOIN flights   f ON b.flight_number = f.flight_number
+         JOIN aircrafts a ON f.aircraft_id   = a.id
 WHERE c.status = 'Gold'
-GROUP BY a.model
+GROUP BY a.name
 ORDER BY total_bookings DESC
     LIMIT 1;
